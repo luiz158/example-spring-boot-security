@@ -35,13 +35,15 @@ public class UserCreateFormValidator implements Validator {
 
     private void validatePasswords(Errors errors, UserCreateForm form) {
         if (!form.getPassword().equals(form.getPasswordRepeated())) {
-            errors.reject("password.no_match", "Passwords do not match");
+        	// add field error
+            errors.rejectValue("password", "password.no_match", "Passwords do not match");
         }
     }
 
     private void validateEmail(Errors errors, UserCreateForm form) {
         if (userService.getUserByEmail(form.getEmail()).isPresent()) {
-            errors.reject("email.exists", "User with this email already exists");
+        	// add field error
+            errors.rejectValue("email", "email.exists", "User with this email already exists");
         }
     }
 }

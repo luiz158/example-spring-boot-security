@@ -7,12 +7,15 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableWebSecurity // to include CSRF into thymeleaf forms automatically 
 @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
 class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -22,7 +25,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/", "/public/**").permitAll()
+                .antMatchers("/").permitAll()
                 .antMatchers("/users/**").hasAuthority("ADMIN")
                 .anyRequest().fullyAuthenticated()
                 .and()
@@ -43,9 +46,13 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-                .userDetailsService(userDetailsService)
-                .passwordEncoder(new BCryptPasswordEncoder());
+        auth.userDetailsService(userDetailsService)
+            .passwordEncoder(new BCryptPasswordEncoder());
     }
+    
+	@Override
+	public void configure(WebSecurity web) throws Exception {
+		web.ignoring().antMatchers("/css/**", "/js/**");
+	}
 
 }
